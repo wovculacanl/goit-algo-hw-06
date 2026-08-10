@@ -142,10 +142,13 @@ class Field:
         return str(self.value)
 
 class Name(Field):
-        pass
+    pass
 
 class Phone(Field):
-		pass
+    def __init__(self, value):
+        if len(value) != 10 or not value.isdigit():
+            raise ValueError("Phone number must be exactly 10 digits.")
+        super().__init__(value)
 
 class Record:
     def __init__(self, name):
@@ -153,7 +156,6 @@ class Record:
         self.phones = []
 
     def add_phone(self, phone_number):
-        new_phone = Phone(phone_number)
         self.phones.append(Phone(phone_number))
 
     def remove_phone(self, phone_number):   
@@ -164,11 +166,12 @@ class Record:
             raise ValueError(f"Phone number {phone_number} not found.")
 
     def edit_phone(self, old_phone_number, new_phone_number):
-        phone_to_edit = self.find_phone(old_phone_number)
-        if phone_to_edit:
-            phone_to_edit.value = new_phone_number
-        else:
-            raise ValueError(f"Phone number {old_phone_number} not found.")
+        for phone in self.phones:
+            if phone.value == old_phone_number:
+                phone.value = new_phone_number
+                return
+        raise ValueError(f"Phone number {old_phone_number} not found.")
+
         
     def find_phone(self, phone_number):
         for phone in self.phones:
@@ -197,24 +200,39 @@ class AddressBook(UserDict):
 
 
 
-# Створення нової адресної книги
+
+# Make a new address book
 book = AddressBook()
 
-# Створення запису для John
+# Make a new record for John
 john_record = Record("John")
 john_record.add_phone("1234567890")
 john_record.add_phone("5555555555")
 
-# Додавання запису John до адресної книги
+# Add John's record to the address book
 book.add_record(john_record)
 
-# Створення та додавання нового запису для Jane
+# Make a new record for Jane
 jane_record = Record("Jane")
 jane_record.add_phone("9876543210")
 book.add_record(jane_record)
 
 print(book)
 
- 
+
+# Find and edit John's phone number
+john = book.find("John")
+john.edit_phone("1234567890", "1112223333")
 
 
+print(john)  # Output: Contact name: John, phones: 1112223333; 5555555555
+
+
+# Find a specific phone number in John's record
+found_phone = john.find_phone("5555555555")
+print(f"{john.name}: {found_phone}")  # Output: John: 5555555555
+
+# Delete Jane's record
+book.delete("Jane")
+
+print(book)
