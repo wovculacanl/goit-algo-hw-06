@@ -31,21 +31,54 @@ class Record:
             self.phones.remove(phone_to_remove)
         else:
             raise ValueError(f"Phone number {phone_number} not found.")
-
+    # Реалызацыя з врахуванням рекомендацій ментора по уникненню дублювання коду 
     def edit_phone(self, old_phone_number, new_phone_number):
-        for phone in self.phones:
-            if phone.value == old_phone_number:
-                new_phone = Phone(new_phone_number)
-                phone.value = new_phone.value
-                return
-        raise ValueError(f"Phone number {old_phone_number} not found.")
+        if not self.find_phone(old_phone_number):
+            raise ValueError(f"Phone number {old_phone_number} not found.")
+        self.add_phone(new_phone_number)
+        self.remove_phone(old_phone_number)
 
         
+    '''
+    Перша реалізація - є рекомендація ментора по уникненню дублювання коду,
+    тому краще використовувати методи add_phone та remove_phone замість прямого
+    доступу до списку phones.
+    '''
+    # def edit_phone(self, old_phone_number, new_phone_number):
+    #     for phone in self.phones:
+    #         if phone.value == old_phone_number:
+    #             new_phone = Phone(new_phone_number)
+    #             phone.value = new_phone.value
+    #             return
+    #     raise ValueError(f"Phone number {old_phone_number} not found.")
+
+
+    '''
+    В цій реалізації є проблема з тим, що якщо старий номер телефону не знайдено,
+    то новий номер все одно додається до списку телефонів, що може призвести
+    до неконсистентного стану. Тому краще спочатку перевіряти наявність
+    старого номера перед додаванням нового.
+    '''
+
+    # def edit_phone(self, old_phone_number, new_phone_number):
+    #     new_phone = Phone(new_phone_number)
+    #     self.remove_phone(old_phone_number)
+    #     self.phones.append(new_phone)
+
+
+    # def edit_phone(self, old_phone_number, new_phone_number):
+    #     if not self.find_phone(old_phone_number):
+    #         raise ValueError(f"Phone number {old_phone_number} not found.")
+    #     self.add_phone(new_phone_number)
+    #     self.remove_phone(old_phone_number)
+
+
     def find_phone(self, phone_number):
         for phone in self.phones:
             if phone.value == phone_number:
                 return phone
         return None
+
 
     def __str__(self):
         return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
@@ -93,7 +126,7 @@ john = book.find("John")
 john.edit_phone("1234567890", "1112223333")
 
 
-print(john)  # Output: Contact name: John, phones: 1112223333; 5555555555
+print(john)  # Output: Contact name: John, phones: 5555555555; 1112223333
 
 
 # Find a specific phone number in John's record
